@@ -35,6 +35,12 @@ const router = new VueRouter({
         name: "Root",
         component: importComponent('TodoList/ListUGD'),
     },
+    // TUGAS
+    {
+        path: "/TUGAS",
+        name: "Root",
+        component: importComponent('TodoList/ListTUGAS'),
+    }
     ]
  },
  ]

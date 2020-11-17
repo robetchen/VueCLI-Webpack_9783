@@ -10,6 +10,7 @@
                     <v-btn color="success" dark @click="dialog = true">
                         Tambah
                     </v-btn>
+                    
                 </v-card-title>
                 <v-data-table :headers="headers" :items="todos" :search="search">
                     <template v-slot:[`item.actions`]="{ item }">
@@ -21,51 +22,67 @@
                     </v-btn>
                           <v-btn small class="mr-2" @click="showItem(item)"> Show</v-btn>
                     </template>
+
+                    <template v-slot:[`item.priority`]="{ item }">
+                    <v-chip
+                    v-if="item.priority=='Penting'"
+                    class="ma-2"
+                    close
+                    color="red"
+                    text-color="white"
+                    
+                    >
+                        {{ item.priority }}
+                        
+                    </v-chip>
+
+                    <v-chip
+                    v-else-if="item.priority=='Biasa'"
+                    class="ma-2"
+                    close
+                    color="blue"
+                    text-color="white"
+                    
+                    >
+                        {{ item.priority }}
+                    </v-chip>
+
+                    <v-chip
+                    v-else
+                    class="ma-2"
+                    close
+                    color="green"
+                    text-color="white"
+                    
+                    >
+                        {{ item.priority }}
+                    </v-chip>
+                    </template>
+
+                     <template v-slot:[`item.checkbox`]="{ item }">
+                   <input type="checkbox" v-model="item.checked" @change="tercek(item)" >
+                    </template>
                 </v-data-table>
             </v-card>
         </div>
-        <div class="grid-item">
-            <v-expansion-panels>
+        <div >
+            <v-expansion-panels v-show="expandsive">
              <v-expansion-panel>
             <v-expansion-panel-header >
             Expand
-             </v-expansion-panel-header> 
+             </v-expansion-panel-header>
+           
             <v-expansion-panel-content>
              <v-card v-show="show" >
-              <v-simple-table >
-                  <table>
-                      <thead>
-                        <tr>
-                        <th class="text-left">
-                            Task
-                        </th>
-                        <th class="text-left">
-                            Priority
-                        </th>
-                        <th class="text-right">
-                            Note
-                        </th>
-                        </tr>
-                        </thead>
-                         <tbody>
-                             <td>{{text1}} </td>
-                             <td>{{text2}} </td>
-                             <td>{{text3}} </td>
-                         </tbody>
-                 
-                  </table>
-              </v-simple-table>
+                        <h4 class="text-left">
+                           Note
+                        </h4>
+                        <br>
+                             <h5>{{text3}} </h5>
             </v-card>
              </v-expansion-panel-content>
          </v-expansion-panel>
          </v-expansion-panels>
-
-        <v-card width="1200px" v-show="deletes">
-             <v-card-title> Delete Multiple </v-card-title>
-             
-
-        </v-card>
-
         </div>
     </div>
     <v-dialog v-model="dialog" persistent max-width="600px">
@@ -111,9 +128,26 @@
                 <v-btn color="blue darken-1" text @click="edit">
                     Save
                 </v-btn>
+                
             </v-card-actions>
         </v-card>
     </v-dialog>
+    
+    <v-card v-show="checkedtugas" width="1600" > 
+        <v-card-title>
+            <h3 class="ml-2">Delete Multiple</h3> 
+            <v-spacer></v-spacer>
+                    <v-btn color="red" dark @click="delete_all(0)">
+                        Delete All
+                    </v-btn>
+        </v-card-title>
+        <div v-for="todo in todos" :key="todo.task">
+            <h5 class="ma-2 ml-5" v-if="todo.checked">
+                {{todo.task}}
+            </h5>
+        </div>
+    </v-card>
+
 </v-main>
 </template>
 
@@ -126,6 +160,7 @@ export default {
             dialog: false,
             dialog1: false,
             show: false,
+            expandsive: false,
             text1: "",
             text2: "",
             text3: "",
@@ -137,41 +172,49 @@ export default {
                     sortable: true,
                     value: "task",
                 },
-                { text: "Priority", value: "priority",
-                },
-                { text: "Note",value: "note",
-                },
+                {  text: "Priority", value: "priority", },
                 {  text: "Actions", value: "actions", },
+                {  text: "Check", value: "checkbox", },
             ],
             todos: [{
                     task: "bernafas",
                     priority: "Penting",
                     note: "huffttt",
+                    checked: false,
                 },
                 {
                     task: "nongkrong",
                     priority: "Tidak penting",
                     note: "bersama tman2",
+                    checked: false,
                 },
                 {
                     task: "masak",
                     priority: "Biasa",
                     note: "masak air 500ml",
+                    checked: false,
                 },
             ],
-            todoDelete:
-            [
-            ],
-            deletes: false, 
-    
+            
             formTodo: {
                 task: null,
                 priority: null,
                 note: null,
+                checked: false,
             },
+
+            checkedtugas: true,
+            checked: false,
         };
     },
     methods: {
+        tercek(item){
+            
+                    this.checkedtugas = true;
+
+                this.item1 = item;    
+        },
+
         save() {
             this.todos.push(this.formTodo);
             this.resetForm();
@@ -191,10 +234,9 @@ export default {
         },
         showItem(x) {
             this.show = true;
-            this.text1 = x.task;
-            this.text2 = x.priority;
             this.text3 = x.note;
             this.item1 = x;
+            this.expandsive = true;
         },
         showform() {
             this.dialog1 = true;
@@ -215,6 +257,14 @@ export default {
             this.todos.splice(this.index, 1);
             this.show = false;
         },
+        delete_all(index){
+            for (index = 0; index < this.todos.length; index++){
+                if(this.todos[index].checked){
+                    this.todos.splice(index,1);
+                    index=-1;
+                }
+            }  
+        }
     },
 };
 </script>
